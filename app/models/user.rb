@@ -4,6 +4,7 @@ class User < ApplicationRecord
     validates :email, presence: true, length: { maximum: 255 },
                     format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i },
                     uniqueness: { case_sensitive: false }
+                 
     has_secure_password
     
     has_many :microposts
@@ -33,24 +34,25 @@ class User < ApplicationRecord
   
   #has_many :microposts
   has_many :favorites
-  has_many :micropostings, through: :favorites, source: :micropost
+  has_many :fav_posts, through: :favorites, source: :micropost
 
-  def micropost(other_micropost)
+  def favorite(other_micropost)
    # unless self == other_micropost
     self.favorites.find_or_create_by(micropost_id: other_micropost.id)
    # end
   end  
   
-  def unmicropost(other_micropost)
+  def unfavorite(other_micropost)
     favorite = self.favorites.find_by(micropost_id: other_micropost.id)
     favorite.destroy if favorite
   end  
     
-  def microposting?(other_micropost)
-    self.micropostings.include?(other_micropost)
+  def favoriting?(other_micropost)
+    self.fav_posts.include?(other_micropost)
   end
   
-  def feed_favorites
-     Favorite.where(user_id: self.microposting_ids + [self.id]) 
-  end     
+  # current_user.fav_posts
+#   def feed_favorites
+#      Favorite.where(user_id: self.microposting_ids + [self.id]) 
+#   end     
 end
